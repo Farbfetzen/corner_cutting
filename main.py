@@ -116,6 +116,11 @@ def run(polygons):
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_RETURN:
+                    # Protect against app or system crashes caused
+                    # by too many corners:
+                    if corner_count > 1e6:
+                        print("Number of corners limit reached.")
+                        continue
                     for p in polygons:
                         p.cut(RATIO, ITERATIONS)
                     iteration_count += ITERATIONS
