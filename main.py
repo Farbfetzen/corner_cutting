@@ -1,7 +1,7 @@
 import pygame, pygame.freetype
 
 
-RATIO = 0.25  # Float between 0 and 1. Ratio of the edg length which determines
+RATIO = 0.25  # Ratio of the edge length which determines
               # how close to the corner the cut should be made.
 ITERATIONS = 1  # Number of iterations per keypress.
 ALPHA = 15  # Alpha of the overlay surface for a fading effect.
