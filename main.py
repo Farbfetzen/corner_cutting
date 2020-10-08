@@ -36,8 +36,6 @@ class Polygon:
         else:
             raise ValueError("\"width\" must be > 0 for open polygons.")
 
-        self.draw = self.draw_closed if is_closed else self.draw_open
-
     def draw_closed(self, target_surface):
         pygame.draw.polygon(
             target_surface,
@@ -50,7 +48,7 @@ class Polygon:
         pygame.draw.lines(
             target_surface,
             self.color,
-            self.is_closed,
+            False,
             self.points,
             self.width
         )
