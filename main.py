@@ -4,9 +4,7 @@ import pygame
 RATIO = 0.25  # Float between 0 and 1. Ratio of the edg length which determines
               # how close to the corner the cut should be made.
 ITERATIONS = 1  # Number of iterations per keypress.
-REPLACE = False  # Draw only the cut polygons? If FALSE, draws the old ones
-                 # with transparency determined by ALPHA.
-ALPHA = 32
+ALPHA = 10  # Alpha of the overlay surface for the fading effect.
 BACKGROUND_COLOR = (0, 0, 0)
 
 
@@ -113,22 +111,15 @@ def run(polygons):
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_RETURN:
-                    if REPLACE:
-                        display.fill(BACKGROUND_COLOR)
-                    else:
-                        display.blit(transparent_surf, (0, 0))
                     for p in polygons:
                         p.cut(RATIO, ITERATIONS)
-                        p.draw(display)
-                    # print(f"New sum of corners of all polygons: {sum_corners}.")
                 elif event.key == pygame.K_BACKSPACE:
-                    if REPLACE:
-                        display.fill(BACKGROUND_COLOR)
-                    else:
-                        display.blit(transparent_surf, (0, 0))
                     for p in polygons:
                         p.undo_cut()
-                        p.draw(display)
+
+        display.blit(transparent_surf, (0, 0))
+        for p in polygons:
+            p.draw(display)
 
         pygame.display.flip()
 
@@ -153,22 +144,22 @@ if __name__ == "__main__":
     pebble_1 = Polygon(
         points=((650, 350), (550, 350), (500, 450), (575, 500), (650, 450)),
         color=(200, 200, 200),
-        width=3
+        width=2
     )
     pebble_2 = Polygon(
         points=((650, 350), (950, 350), (900, 450), (650, 550)),
         color=(200, 200, 200),
-        width=3
+        width=2
     )
     pebble_3 = Polygon(
-        points=((650, 350), (950, 350), (900, 50), (650, 100)),
+        points=((650, 350), (950, 350), (900, 50), (650, 75)),
         color=(200, 200, 200),
-        width=3
+        width=2
     )
     pebble_4 = Polygon(
         points=((650, 350), (450, 350), (350, 150), (450, 75), (650, 100)),
         color=(200, 200, 200),
-        width=3
+        width=2
     )
     braid = Polygon(
         points=((1075, 25), (1000, 138), (1150, 250), (1000, 363), (1075, 475),
