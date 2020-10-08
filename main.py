@@ -1,9 +1,12 @@
 import pygame
 
 
-RATIO = 0.25
-ITERATIONS = 1
-REPLACE = True
+RATIO = 0.25  # Float between 0 and 1. Ratio of the edg length which determines
+              # how close to the corner the cut should be made.
+ITERATIONS = 1  # Number of iterations per keypress.
+REPLACE = False  # Draw only the cut polygons? If FALSE, draws the old ones
+                 # with transparency determined by ALPHA.
+ALPHA = 32
 BACKGROUND_COLOR = (0, 0, 0)
 
 
@@ -45,8 +48,6 @@ class Polygon:
         )
 
     def draw_open(self, target_surface):
-        # I'm not using draw_aalines because that looks broken
-        # in pygame 2.0.0.dev12.
         pygame.draw.lines(
             target_surface,
             self.color,
@@ -95,7 +96,7 @@ def run(polygons):
     pygame.init()
     display = pygame.display.set_mode((1200, 800), pygame.SRCALPHA)
     transparent_surf = pygame.Surface(display.get_size()).convert_alpha()
-    transparent_surf.fill((0, 0, 0, 32))
+    transparent_surf.fill((0, 0, 0, ALPHA))
 
     display.fill(BACKGROUND_COLOR)
     for p in polygons:
