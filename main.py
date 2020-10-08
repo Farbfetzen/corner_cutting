@@ -11,7 +11,7 @@ INVERT = False  # Invert the order of new points for spiky results.
 
 
 class Polygon:
-    def __init__(self, points, color, is_closed=True, width=1):
+    def __init__(self, points, color, is_closed=True, width=1, remember=True):
         """
         :param points: A list or tuple of points specified as lists, tuples
             or pygame.Vector2.
@@ -19,6 +19,8 @@ class Polygon:
         :param color: Line color.
         :param width: Line thickness. If the polygon is closed and width=0
             then the polygon is filled. Width must be > 0 for open polygons.
+        :param remember: Should previous shapes be saved? This will disable
+            the undo functionality if set to False.
         """
         self.points = []
         for p in points:
@@ -28,6 +30,7 @@ class Polygon:
         self.is_closed = is_closed
         self.color = color
         self.width = width
+        self.remember = remember
         self.memory = []
 
         if is_closed:
@@ -61,7 +64,8 @@ class Polygon:
             determines how close to the corner the cut should be made.
         :param iterations: Number of iterations of the cutting algorithm.
         """
-        self.memory.append(self.points)
+        if self.remember:
+            self.memory.append(self.points)
 
         # Avoid cutting over the line midpoint:
         if ratio > 0.5:
