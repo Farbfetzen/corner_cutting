@@ -4,5 +4,7 @@ Thanks to https://sighack.com/post/chaikin-curves for for the tutorial.
 
 ![example gif](readme_gif.gif)
 
-Press Enter to cut the corners.
-Press Backspace to undo the last step.
+Controls:
+
+- Press Enter to cut the corners. But don't make too many cuts because every cut doubles the number of corners which may cause Pygame or your PC to crash.
+- Press Backspace to undo the last step.
