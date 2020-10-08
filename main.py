@@ -1,10 +1,11 @@
-import pygame
+import pygame, pygame.freetype
 
 
 RATIO = 0.25  # Float between 0 and 1. Ratio of the edg length which determines
               # how close to the corner the cut should be made.
 ITERATIONS = 1  # Number of iterations per keypress.
-ALPHA = 10  # Alpha of the overlay surface for the fading effect.
+ALPHA = 15  # Alpha of the overlay surface for a fading effect.
+            # Set to 0 to not erase previous steps.
 BACKGROUND_COLOR = (0, 0, 0)
 
 
@@ -92,9 +93,14 @@ class Polygon:
 
 def run(polygons):
     pygame.init()
+    pygame.freetype.init()
     display = pygame.display.set_mode((1200, 800), pygame.SRCALPHA)
     transparent_surf = pygame.Surface(display.get_size()).convert_alpha()
     transparent_surf.fill((0, 0, 0, ALPHA))
+
+    font = pygame.freetype.SysFont("monospace", 20)
+    font.fgcolor = (255, 255, 255)
+    count = 0
 
     display.fill(BACKGROUND_COLOR)
     for p in polygons:
@@ -113,14 +119,16 @@ def run(polygons):
                 elif event.key == pygame.K_RETURN:
                     for p in polygons:
                         p.cut(RATIO, ITERATIONS)
+                    count += ITERATIONS
                 elif event.key == pygame.K_BACKSPACE:
                     for p in polygons:
                         p.undo_cut()
+                    count = max(0, count - ITERATIONS)
 
         display.blit(transparent_surf, (0, 0))
         for p in polygons:
             p.draw(display)
-
+        font.render_to(display, (5, 5), f"iterations: {count}")
         pygame.display.flip()
 
 
@@ -139,7 +147,7 @@ if __name__ == "__main__":
         points=((100, 400), (200, 600), (300, 500), (400, 700)),
         color=(0, 255, 0),
         is_closed=False,
-        width=2
+        width=1
     )
     pebble_1 = Polygon(
         points=((650, 350), (550, 350), (500, 450), (575, 500), (650, 450)),
