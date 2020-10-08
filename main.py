@@ -56,7 +56,7 @@ class Polygon:
     def cut(self, ratio, iterations=1):
         """ Chaikin's corner cutting: https://sighack.com/post/chaikin-curves
 
-        :param ratio: Float between 0 and 1. Ratio of the edg length which
+        :param ratio: Float between 0 and 1. Ratio of the edge length which
             determines how close to the corner the cut should be made.
         :param iterations: Number of iterations of the cutting algorithm.
         """
@@ -98,7 +98,8 @@ def run(polygons):
 
     font = pygame.freetype.SysFont("monospace", 20)
     font.fgcolor = (255, 255, 255)
-    count = 0
+    iteration_count = 0
+    corner_count = sum(len(p.points) for p in polygons)
 
     display.fill(BACKGROUND_COLOR)
     for p in polygons:
@@ -117,16 +118,19 @@ def run(polygons):
                 elif event.key == pygame.K_RETURN:
                     for p in polygons:
                         p.cut(RATIO, ITERATIONS)
-                    count += ITERATIONS
+                    iteration_count += ITERATIONS
+                    corner_count = sum(len(p.points) for p in polygons)
                 elif event.key == pygame.K_BACKSPACE:
                     for p in polygons:
                         p.undo_cut()
-                    count = max(0, count - ITERATIONS)
+                    iteration_count = max(0, iteration_count - ITERATIONS)
+                    corner_count = sum(len(p.points) for p in polygons)
 
         display.blit(transparent_surf, (0, 0))
         for p in polygons:
             p.draw(display)
-        font.render_to(display, (5, 5), f"iterations: {count}")
+        font.render_to(display, (5, 5), f"iterations: {iteration_count}")
+        font.render_to(display, (5, 25), f"corners: {corner_count}")
         pygame.display.flip()
 
 
