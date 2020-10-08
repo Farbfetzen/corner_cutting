@@ -63,7 +63,7 @@ class Polygon:
         """
         self.memory.append(self.points)
 
-        # Avoid cuttin over the line midpoint:
+        # Avoid cutting over the line midpoint:
         if ratio > 0.5:
             ratio = 1 - ratio
 
@@ -96,18 +96,18 @@ class Polygon:
 def run(polygons):
     pygame.init()
     pygame.freetype.init()
-    display = pygame.display.set_mode((1200, 800), pygame.SRCALPHA)
-    transparent_surf = pygame.Surface(display.get_size()).convert_alpha()
-    transparent_surf.fill((0, 0, 0, ALPHA))
+
+    display = pygame.display.set_mode((1200, 800))
+    display.fill(BACKGROUND_COLOR)
+
+    transparent_surf = pygame.Surface(display.get_size())
+    transparent_surf.set_alpha(ALPHA)
 
     font = pygame.freetype.SysFont("monospace", 20)
     font.fgcolor = (255, 255, 255)
+
     iteration_count = 0
     corner_count = sum(len(p.points) for p in polygons)
-
-    display.fill(BACKGROUND_COLOR)
-    for p in polygons:
-        p.draw(display)
 
     clock = pygame.time.Clock()
     running = True
