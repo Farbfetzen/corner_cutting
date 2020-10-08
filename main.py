@@ -7,6 +7,7 @@ ITERATIONS = 1  # Number of iterations per keypress.
 ALPHA = 15  # Alpha of the overlay surface for a fading effect.
             # Set to 0 to not erase previous steps.
 BACKGROUND_COLOR = (0, 0, 0)
+INVERT = False  # Invert the order of new points for spiky results.
 
 
 class Polygon:
@@ -77,6 +78,9 @@ class Polygon:
                 b = self.points[(i + 1) % len(self.points)]
                 new_points.append(a.lerp(b, ratio))
                 new_points.append(b.lerp(a, ratio))
+
+                if INVERT:
+                    new_points[-2:] = new_points[-1:-3:-1]
 
             # For open polygons keep the original endpoints:
             if not self.is_closed:
