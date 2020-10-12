@@ -1,4 +1,5 @@
-import pygame, pygame.freetype
+import pygame
+import pygame.freetype
 
 
 RATIO = 0.25  # Ratio of the edge length which determines
@@ -11,14 +12,13 @@ INVERT = False  # Invert the order of new corners for spiky results.
 
 
 class Polygon:
-    def __init__(self, corners, color, is_closed=True, width=1, remember=True):
+    def __init__(self, corners, color, closed=True, filled=False, remember=True):
         """
         :param corners: A list or tuple of points specified as lists, tuples
             or pygame.Vector2.
-        :param is_closed: Should the polygon be open or closed?
         :param color: Line color.
-        :param width: Line thickness. If the polygon is closed and width=0
-            then the polygon is filled. Width must be > 0 for open polygons.
+        :param closed: Should the polygon be open or closed?
+        :param filled: If it is closed, should the shape be filled?
         :param remember: Should previous shapes be saved? This will disable
             the undo functionality if set to False.
         """
@@ -27,34 +27,34 @@ class Polygon:
             if not isinstance(p, pygame.Vector2):
                 p = pygame.Vector2(p)
             self.corners.append(p)
-        self.is_closed = is_closed
+        self.closed = closed
         self.color = color
-        self.width = width
+        self.filled = filled
         self.remember = remember
         self.memory = []
 
-        if is_closed:
-            self.draw = self.draw_closed
-        elif width > 0:
-            self.draw = self.draw_open
+        if closed and filled:
+            self.draw = self.draw_closed_filled
         else:
-            raise ValueError("\"width\" must be > 0 for open polygons.")
+            self.draw = self.draw_empty
 
-    def draw_closed(self, target_surface):
+    def draw_empty(self, target_surface):
+        pygame.draw.aalines(
+            target_surface,
+            self.color,
+            self.closed,
+            self.corners
+        )
+
+    def draw_closed_filled(self, target_surface):
+        # Pygame does not have filled antialiased shapes. But you can combine
+        # the empty antialiased shape and the filled version to achieve
+        # an acceptable result.
+        self.draw_empty(target_surface)
         pygame.draw.polygon(
             target_surface,
             self.color,
-            self.corners,
-            self.width
-        )
-
-    def draw_open(self, target_surface):
-        pygame.draw.lines(
-            target_surface,
-            self.color,
-            False,
-            self.corners,
-            self.width
+            self.corners
         )
 
     def cut(self, ratio, iterations=1):
@@ -74,7 +74,7 @@ class Polygon:
         for _ in range(iterations):
             new_corners = []
             n_corners = len(self.corners)
-            if not self.is_closed:
+            if not self.closed:
                 n_corners -= 1
 
             for i in range(n_corners):
@@ -87,7 +87,7 @@ class Polygon:
                     new_corners[-1], new_corners[-2] = new_corners[-2], new_corners[-1]
 
             # For open polygons keep the original endpoints:
-            if not self.is_closed:
+            if not self.closed:
                 new_corners[0] = self.corners[0]
                 new_corners[-1] = self.corners[-1]
             self.corners = new_corners
@@ -155,40 +155,35 @@ if __name__ == "__main__":
     triangle_open = Polygon(
         corners=((1000, 750), (1150, 600), (600, 650)),
         color=(0, 128, 255),
-        is_closed=False,
-        width=2
+        closed=False
     )
     s = Polygon(
         corners=((100, 400), (200, 600), (300, 500), (400, 700)),
         color=(0, 255, 0),
-        is_closed=False,
-        width=1
+        closed=False
     )
     pebble_1 = Polygon(
         corners=((650, 350), (550, 350), (500, 450), (575, 500), (650, 450)),
-        color=(200, 200, 200),
-        width=2
+        color=(200, 200, 200)
     )
     pebble_2 = Polygon(
         corners=((650, 350), (950, 350), (900, 450), (650, 550)),
         color=(200, 200, 200),
-        width=0
+        filled=True
     )
     pebble_3 = Polygon(
         corners=((650, 350), (950, 350), (900, 50), (650, 75)),
-        color=(200, 200, 200),
-        width=2
+        color=(200, 200, 200)
     )
     pebble_4 = Polygon(
         corners=((650, 350), (450, 350), (350, 150), (450, 75), (650, 100)),
         color=(200, 200, 200),
-        width=0
+        filled=True
     )
     braid = Polygon(
         corners=((1075, 25), (1000, 138), (1150, 250), (1000, 363), (1075, 475),
                  (1150, 363), (1000, 250), (1150, 138)),
-        color=(255, 0, 255),
-        width=2
+        color=(255, 0, 255)
     )
     run([
         triangle_closed,
