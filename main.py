@@ -1,28 +1,31 @@
+from typing import List, Sequence, Tuple, Union
+
 import pygame
 import pygame.freetype
 
 
-RATIO = 0.25  # Ratio of the edge length which determines
-              # how close to the corner the cut should be made.
-ITERATIONS = 1  # Number of iterations per keypress.
-ALPHA = 15  # Alpha of the overlay surface for a fading effect.
-            # Set to 0 to not erase previous steps.
+# Ratio of the edge length which determines
+# how close to the corner the cut should be made.
+RATIO = 0.25
+# Number of iterations per keypress.
+ITERATIONS = 1
+# Alpha of the overlay surface for a fading effect.
+# Set to 0 to not erase previous steps.
+ALPHA = 15
 BACKGROUND_COLOR = (0, 0, 0)
-INVERT = False  # Invert the order of new corners for spiky results.
+# Invert the order of new corners for spiky results.
+INVERT = False
 
 
 class Polygon:
-    def __init__(self, corners, color, closed=True, filled=False, remember=True):
-        """
-        :param corners: A list or tuple of points specified as lists, tuples
-            or pygame.Vector2.
-        :param color: Line color.
-        :param closed: Should the polygon be open or closed?
-        :param filled: If it is closed, should the shape be filled?
-        :param remember: Should previous shapes be saved? This will disable
-            the undo functionality if set to False.
-        """
-        self.corners = []
+    def __init__(self,
+                 corners: Sequence[Union[pygame.Vector2, Tuple[int, int]]],
+                 color: Union[pygame.Color, Tuple[int, int, int], List[int], int, str],
+                 closed: bool = True,
+                 filled: bool = False,
+                 remember: bool = True) -> None:
+        """Setting "remember" to False will disable the undo functionality."""
+        self.corners: List[pygame.math.Vector2] = []
         for p in corners:
             if not isinstance(p, pygame.Vector2):
                 p = pygame.Vector2(p)
@@ -31,14 +34,14 @@ class Polygon:
         self.color = color
         self.filled = filled
         self.remember = remember
-        self.memory = []
+        self.memory: List[List[pygame.math.Vector2]] = []
 
         if closed and filled:
             self.draw = self.draw_closed_filled
         else:
             self.draw = self.draw_empty
 
-    def draw_empty(self, target_surface):
+    def draw_empty(self, target_surface: pygame.surface.Surface) -> None:
         pygame.draw.aalines(
             target_surface,
             self.color,
@@ -46,7 +49,7 @@ class Polygon:
             self.corners
         )
 
-    def draw_closed_filled(self, target_surface):
+    def draw_closed_filled(self, target_surface: pygame.surface.Surface) -> None:
         # Pygame does not have filled antialiased shapes. But you can combine
         # the empty antialiased shape and the filled version to achieve
         # an acceptable result.
@@ -57,12 +60,12 @@ class Polygon:
             self.corners
         )
 
-    def cut(self, ratio, iterations=1):
+    def cut(self, ratio: float, iterations: int = 1) -> None:
         """ Chaikin's corner cutting: https://sighack.com/post/chaikin-curves
 
-        :param ratio: Float between 0 and 1. Ratio of the edge length which
+        ratio: Ratio (between 0 and 1) of the edge length which
             determines how close to the corner the cut should be made.
-        :param iterations: Number of iterations of the cutting algorithm.
+        iterations: Number of iterations of the cutting algorithm.
         """
         if self.remember:
             self.memory.append(self.corners)
@@ -92,12 +95,12 @@ class Polygon:
                 new_corners[-1] = self.corners[-1]
             self.corners = new_corners
 
-    def undo_cut(self):
+    def undo_cut(self) -> None:
         if len(self.memory) > 0:
             self.corners = self.memory.pop()
 
 
-def run(polygons):
+def run(polygons: Sequence[Polygon]) -> None:
     pygame.init()
     pygame.freetype.init()
 
@@ -185,7 +188,7 @@ if __name__ == "__main__":
                  (1150, 363), (1000, 250), (1150, 138)),
         color=(255, 0, 255)
     )
-    run([
+    run((
         triangle_closed,
         triangle_open,
         s,
@@ -194,4 +197,4 @@ if __name__ == "__main__":
         pebble_3,
         pebble_4,
         braid
-    ])
+    ))

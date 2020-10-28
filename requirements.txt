@@ -1,1 +1,2 @@
-pygame==2.0.0.dev14
+pygame==2.0.0.dev24
+mypy
